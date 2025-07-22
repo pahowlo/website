@@ -1,0 +1,4 @@
+[submodule "components/murmuring-boids"]
+	path    = components/murmuring-boids
+	url     = https://github.com/pahowlo/murmuring-boids.git
+	branch  = main
