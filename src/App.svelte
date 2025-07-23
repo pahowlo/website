@@ -1,18 +1,42 @@
+<script lang="ts">
+  import { onMount } from "svelte"
+  import { MurmuringBoidsBackground } from "murmuring-boids"
+
+  let name = "world"
+
+  // Define top-left and bottom-right as percentages (0-1)
+  const topLeft = { x: 0, y: 0 }
+  const bottomRight = { x: 1, y: 1 }
+
+  // Read query parameters
+  let params: URLSearchParams
+  let canvas: HTMLCanvasElement | null = null
+  let debug = false
+  onMount(() => {
+    // Read query parameters
+    params = new URLSearchParams(window.location.search)
+    if (params.has("debug")) {
+      debug = true
+    }
+
+    // Init background
+    if (canvas) {
+      const background = new MurmuringBoidsBackground(window, canvas, {
+        topLeft: topLeft,
+        bottomRight: bottomRight,
+      })
+      background.start(1000, debug)
+    }
+  })
+</script>
+
 <main>
-  <h1>Hello {name}!</h1>
+  <canvas bind:this={canvas}></canvas>
 </main>
 
-<script lang="ts">
-  let name = "world"
-</script>
- 
-
 <style>
-  main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: sans-serif;
+  canvas {
+    display: block;
+    overflow: hidden;
   }
 </style>
