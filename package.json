@@ -2,11 +2,6 @@
   "name": "personal-github-page",
   "version": "0.1.0",
   "author": "Paul L <paul.legoux@gmail.com>",
-  "prettier": {
-    "semi": false,
-    "singleQuote": false,
-    "printWidth": 120
-  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,6 +10,14 @@
     "lint:fix": "eslint src/ --fix",
     "test": "jest",
     "format": "prettier --config package.json --write 'src/**/*.{js,ts,json}'"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": false,
+    "printWidth": 120
+  },
+  "dependencies": {
+    "murmuring-boids": "file:components/murmuring-boids"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
