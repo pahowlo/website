@@ -2,22 +2,28 @@
   "name": "personal-github-page",
   "version": "0.1.0",
   "author": "Paul L <paul.legoux@gmail.com>",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
-    "dev": "vite",
+    "build:all": "pnpm build:components && echo './' && pnpm build",
+    "build:components": ".scripts/for-each-component pnpm build",
     "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint src/",
+    "build:preview": "vite preview",
+    "clean": "rm -r node_modules/ dist/ target/ pnpm-lock.yaml 2>/dev/null ||:",
+    "clean:components": ".scripts/for-each-component pnpm clean",
+    "clean:all": "pnpm clean:components && echo './' && pnpm clean",
+    "dev": "vite",
+    "format": "prettier --config package.json --write 'src/**/*.{js,ts,json}'",
+    "install:all": "pnpm install:components && echo './' &&  pnpm install",
+    "install:components": ".scripts/for-each-component pnpm install",
     "lint:fix": "eslint src/ --fix",
-    "test": "jest",
-    "format": "prettier --config package.json --write 'src/**/*.{js,ts,json}'"
+    "lint": "eslint src/",
+    "test:lint": "eslint src/ && tsc --noEmit",
+    "test": "jest"
   },
   "prettier": {
     "semi": false,
     "singleQuote": false,
     "printWidth": 120
-  },
-  "dependencies": {
-    "murmuring-boids": "file:components/murmuring-boids"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
