@@ -34,40 +34,49 @@ function _fetch_link()
         if [ -L "$link_path" ]; then
             rm "$link_path"
         elif [ -e "$link_path" ]; then
-            echo "ERROR: Path $link_path already exists and is not a symlink. Skipping." >&2
-            return 1
+            read -rp "Path already exists and is not a symlink. Override $link_path? (y/N) " answer
+            case "$answer" in
+                [yY])
+                    rm -rf "$link_path";;
+                *)
+                    echo "ERROR: Skipping." >&2
+                    return 1;;
+            esac
+            unset answer
+            echo
         fi
 
+        echo "Cloning $target_repo_url checkout at $ref in link directory: $link_path"
         mkdir -p "$link_path"
         cd "$link_path"
         git init -q
         git remote add origin "$target_repo_url"
         git fetch --depth 1 origin "$ref"
-        git checkout "$ref"
+        git checkout "$ref" -q
     )
 }
 
 
 function fetch_links()
 {
-    local links_file="$ROOT_DIR/.links"
+    local links_file="$ROOT_DIR/.links_conf"
     if [ ! -f "$links_file" ]; then
-        echo "Links file not found: $links_file"
+        echo "ERROR: Links config file not found: $links_file"
         return 1
     fi
 
-    local line link_path repo_name ref_name
-
-    while IFS= read -r line; do
-    case "$line" in
-        ''|\#*) ;;         # Skip empty lines and lines starting with #
-        *)
-            line=$(echo "$line" | sed 's/\s*#.*$//')
-            set -- $line
-            _fetch_link "$@"
-        ;;
-    esac
-    done < .links
+    # Read link config file but skip empty lines and comments
+    trap 'unset IFS' EXIT
+    IFS='
+'
+    for line in $(cat "$links_file" | sed '/^\s*#/d; /^\s*$/d; s/\s*#.*$//g'); do
+        IFS=' '
+        set -- $line
+        _fetch_link "$@"
+        IFS='
+'
+    done
+    unset line
 }
 
 

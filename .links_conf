@@ -1,0 +1,3 @@
+# N.B. '.link' will be appended to the each link path.
+# <link path>  <repo name>  <ref>
+components/murmuring-boids  pahowlo/murmuring-boids  a62e5037538e9a8e24ae52c2e712abfb89f9491d

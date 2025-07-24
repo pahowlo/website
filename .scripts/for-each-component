@@ -1,0 +1,25 @@
+#!/bin/sh
+if ( return 0 2>/dev/null ); then
+    echo "[ERROR] This script must be run, not sourced." >&2
+    return 1
+fi
+
+SCRIPTS_DIR=$(dirname "$(realpath "$0")")
+ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
+
+
+
+function for_each_component()
+{
+    command="$@"
+
+    cd "$ROOT_DIR"
+    for comp_dir in $(find components -d -maxdepth 1 -mindepth 1); do
+        echo "./$comp_dir"
+        eval "cd $comp_dir && $command && (cd - >/dev/null)"
+        echo
+    done
+}
+
+
+for_each_component "$@"
