@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   // Use ts-jest preset for TypeScript support
   preset: "ts-jest",
 
@@ -10,20 +10,15 @@ module.exports = {
 
   // How to transform files before testing (using ts-jest to compile TypeScript)
   transform: {
-    "^.+\\.ts$": "ts-jest",
+    "^.+\\.ts$": ["ts-jest", { useESM: true }],
   },
-
+  extensionsToTreatAsEsm: [".ts"],
   // Coverage reports
   collectCoverageFrom: [
-    // Files to include in report
     "src/**/*.ts",
     "!src/**/*.d.ts",
     "!src/**/*.test.ts",
   ],
   coverageDirectory: "coverage",
-  coverageReporters: [
-    "text", // Console output
-    "lcov", // for tools like Coveralls
-    "html", // HTML report for browsing
-  ],
+  coverageReporters: ["text", "lcov", "html"],
 }
