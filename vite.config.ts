@@ -5,7 +5,7 @@ import path from "path"
 export default defineConfig({
   plugins: [svelte()],
   build: {
-    outDir: "dist", // Change "dist" to your desired output directory
+    outDir: "target",
     emptyOutDir: true,
   },
   server: {
