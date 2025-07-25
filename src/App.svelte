@@ -25,7 +25,7 @@
         topLeft: topLeft,
         bottomRight: bottomRight,
       })
-      background.start(1000, debug)
+      background.start(2000, debug)
     }
   })
 </script>
