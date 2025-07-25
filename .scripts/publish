@@ -1,0 +1,55 @@
+#!/bin/sh
+if ( return 0 2>/dev/null ); then
+    echo "[ERROR] This script must be run, not sourced." >&2
+    return 1
+fi
+
+SCRIPTS_DIR=$(dirname "$(realpath "$0")")
+ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
+
+. "$SCRIPTS_DIR/common/utils.sh"
+
+
+# -- Constants
+TARGET_REPOSITORY="pahowlo/pahowlo.github.io"
+TARGET_BRANCH="main"
+
+# -- Function
+# Publish the built application to the target repository
+function publish()
+{   
+    (
+        set -euo pipefail
+        
+        local version=$(jq -r .version package.json)
+        local git_base_url=$(git config --get remote.origin.url | sed -E "s~([^/:])+/([^/])+[.]git~~g" )
+
+        local temp_dir=$(mktemp -d)
+        trap 'rm -rf "$temp_dir"' EXIT
+
+        # Clone target repo
+        cd "$temp_dir"; echo $temp_dir
+        git clone --branch "$TARGET_BRANCH" --depth 1 "$git_base_url$TARGET_REPOSITORY.git" .
+
+        # Remove old files
+        find . -maxdepth 1 ! -name '.git' ! -name 'LICENSE' ! -name 'README.md' -exec rm -r {} \;
+
+        # Copy new files
+        cp -r "$ROOT_DIR/target/." ./
+
+        find . -maxdepth 5 ! -path './.git*' | sort | cut -c3-
+        echo
+
+        # Commit and push changes
+        git add -A
+        git commit -m "Release version $version"
+        git push origin main
+
+    ) || {
+        echo "[ERROR] Failed to publish to $TARGET_REPOSITORY" >&2
+        return 1
+    }
+}
+
+
+publish "$@"
