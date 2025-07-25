@@ -17,39 +17,103 @@ TARGET_BRANCH="main"
 # -- Function
 # Publish the built application to the target repository
 function publish()
-{   
+{
     (
         set -euo pipefail
-        
-        local version=$(jq -r .version package.json)
-        local git_base_url=$(git config --get remote.origin.url | sed -E "s~([^/:])+/([^/])+[.]git~~g" )
 
-        local temp_dir=$(mktemp -d)
+        # Verification
+        if [ -z "$(ls -A "$ROOT_DIR/target" 2>/dev/null)" ]; then
+            pnpm install:all
+            pnpm build:all
+        fi
+
+        # Parse arguments
+        local version_number=$(jq -r .version package.json)
+        local git_base_url=$(git config --get remote.origin.url | sed -E "s~([^/:]+)/([^/]+)[.]git$~~g" )
+
+        mkdir -p "$ROOT_DIR/tmp"
+        local temp_dir=$(mktemp -d -p "$ROOT_DIR/tmp" "publish-XXXXXXXX")
         trap 'rm -rf "$temp_dir"' EXIT
 
-        # Clone target repo
-        cd "$temp_dir"; echo $temp_dir
-        git clone --branch "$TARGET_BRANCH" --depth 1 "$git_base_url$TARGET_REPOSITORY.git" .
-
-        # Remove old files
-        find . -maxdepth 1 ! -name '.git' ! -name 'LICENSE' ! -name 'README.md' -exec rm -r {} \;
-
-        # Copy new files
-        cp -r "$ROOT_DIR/target/." ./
-
-        find . -maxdepth 5 ! -path './.git*' | sort | cut -c3-
+        echo "VERSION_NUMBER = $version_number"
+        echo "TEMP_DIR       = $temp_dir"
         echo
 
-        # Commit and push changes
-        git add -A
-        git commit -m "Release version $version"
-        git push origin main
+        cd "$temp_dir"
 
+        # Clone target repository and remove old files
+        git clone --branch "$TARGET_BRANCH" --depth 1 "$git_base_url$TARGET_REPOSITORY.git" .
+        find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'LICENSE' ! -name 'README.md' \
+            -exec rm -r {} \;
+
+        # Copy new files to the target repository
+        cp -r "$ROOT_DIR/target/." ./
+
+        find . -mindepth 1 -maxdepth 5 ! -path './.git*' | sort | cut -c3-
+        echo
+
+        git add -A
+
+        # Verify that there are actual changes in target repository to commit
+        if git diff --quiet HEAD; then
+            echo "[INFO] No changes to commit." >&2
+            return 0
+        fi
+
+        # Create tag from source repository
+        cd $ROOT_DIR
+        create_github_release "v$version_number"
+
+        # Commit and push changes
+        cd "$temp_dir"
+        git commit -m "Release v$version_number"
+        git push
     ) || {
         echo "[ERROR] Failed to publish to $TARGET_REPOSITORY" >&2
         return 1
     }
 }
+
+function create_github_release()
+{
+
+    local version="${1:-}"
+    local message="${2:-}"
+
+    if [ -z "$version" ]; then
+        echo "[ERROR] Version argument is required to create GitHub tag." >&2
+        return 1
+    fi
+    (
+        set -euo pipefail
+
+        local release_creation_args=
+        if [ ! -z "$message" ]; then
+            release_creation_args=" --notes \"$message\""
+        fi
+
+        local github_repository=$(git config --get remote.origin.url | sed -E "s~.*[:/]([^/:]+)/([^/]+)[.]git$~\1/\2~g" )
+        echo "$github_repository"
+
+        # Delete existing tag if any of the same version
+        git tag -d               "$version" 2>/dev/null || true
+        git push origin --delete "$version" 2>/dev/null || true
+
+        # Create and push new tag
+        git tag -s "$version" -m ""
+        git push origin "$version"
+
+        # Create a release on GitHub
+        gh release create "$version" --title "$version" $release_creation_args --repo "$github_repository"
+
+    ) || {
+        echo "[ERROR] Failed to create tag $version with message:" >&2
+        echo "$message" >&2 d
+        echo
+        return 1
+    }
+}
+
 
 
 publish "$@"
