@@ -39,6 +39,8 @@ pnpm-lock.yaml
 build/
 dist/
 target/
+tmp/
+temp/
 
 # Backup files
 *.bak
