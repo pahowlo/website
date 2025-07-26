@@ -15,9 +15,8 @@
     "format": "prettier --config package.json --write 'src/**/*.{js,ts,json}'",
     "install:all": "pnpm install:components && echo './' &&  pnpm install",
     "install:components": ".scripts/for-each-component pnpm install",
-    "lint:fix": "eslint src/ --fix",
-    "lint": "eslint src/",
-    "test:lint": "eslint src/ && tsc --noEmit",
+    "check:fix": "eslint src/ --fix",
+    "check": "eslint src/ && echo && tsc --noEmit",
     "test": "jest"
   },
   "prettier": {
