@@ -4,10 +4,6 @@
 
   let name = "world"
 
-  // Define top-left and bottom-right as percentages (0-1)
-  const topLeft = { x: 0, y: 0 }
-  const bottomRight = { x: 1, y: 1 }
-
   // Read query parameters
   let params: URLSearchParams
   let canvas: HTMLCanvasElement | null = null
@@ -21,11 +17,8 @@
 
     // Init background
     if (canvas) {
-      const background = new MurmuringBoidsBackground(window, canvas, {
-        topLeft: topLeft,
-        bottomRight: bottomRight,
-      })
-      background.start(2000, debug)
+      const background = new MurmuringBoidsBackground(window, canvas)
+      background.start(5000, debug, {})
     }
   })
 </script>
@@ -35,8 +28,17 @@
 </main>
 
 <style>
+  main {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
   canvas {
     display: block;
-    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 </style>
