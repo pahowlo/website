@@ -66,7 +66,15 @@ function publish()
 
         # Commit and push changes
         cd "$temp_dir"
-        git commit -m "Release v$version_number"
+        local new_commit_msg="Release v$version_number"
+
+        local commit_args=
+        if [ "$new_commit_msg" = "$(git log -1 --pretty=format:"%s")" ]; then
+            commit_args+=" --amend"  # Last commit add same name
+        else
+            commit_args+=" -m \"$new_commit_msg\""
+        fi
+        git commit $commit_args
         git push
     ) || {
         echo "[ERROR] Failed to publish to $TARGET_REPOSITORY" >&2
@@ -87,9 +95,9 @@ function create_github_release()
     (
         set -euo pipefail
 
-        local release_creation_args=
+        local release_create_args=
         if [ ! -z "$message" ]; then
-            release_creation_args=" --notes \"$message\""
+            release_create_args+=" --notes \"$message\""
         fi
 
         local github_repository=$(git config --get remote.origin.url | sed -E "s~.*[:/]([^/:]+)/([^/]+)[.]git$~\1/\2~g" )
@@ -104,7 +112,7 @@ function create_github_release()
         git push origin "$version"
 
         # Create a release on GitHub
-        gh release create "$version" --title "$version" $release_creation_args --repo "$github_repository"
+        gh release create "$version" --title "$version" $release_create_args --repo "$github_repository"
 
     ) || {
         echo "[ERROR] Failed to create tag $version with message:" >&2
