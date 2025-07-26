@@ -1,6 +1,6 @@
 {
   "name": "personal-github-page",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Paul L <paul.legoux@gmail.com>",
   "packageManager": "pnpm@10.13.1",
   "scripts": {
@@ -8,7 +8,7 @@
     "build:components": ".scripts/for-each-component pnpm build",
     "build": "vite build",
     "build:preview": "vite preview",
-    "clean": "rm -r node_modules/ dist/ target/ pnpm-lock.yaml 2>/dev/null ||:",
+    "clean": "rm -rf node_modules/ dist/ target/ pnpm-lock.yaml",
     "clean:components": ".scripts/for-each-component pnpm clean",
     "clean:all": "pnpm clean:components && echo './' && pnpm clean",
     "dev": "vite",
