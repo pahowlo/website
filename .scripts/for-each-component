@@ -1,14 +1,19 @@
 #!/bin/sh
-if ( return 0 2>/dev/null ); then
-    echo "[ERROR] This script must be run, not sourced." >&2
-    return 1
+alias _is_run='!(return 0 2>/dev/null)'
+
+if _is_run; then
+    SCRIPTS_DIR=$(dirname "$(realpath "$0")")
+else
+    if [ -z "${SCRIPTS_DIR:-}" ]; then
+        echo "ERROR: If sourced and not run, SCRIPTS_DIR env var must contain the path to scripts directory" >&2
+        return 1  # sourced
+    fi
 fi
 
-SCRIPTS_DIR=$(dirname "$(realpath "$0")")
 ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
 
 
-# -- Function
+# == Main function
 function for_each_component()
 {
     command="$@"
@@ -16,10 +21,13 @@ function for_each_component()
     cd "$ROOT_DIR"
     for comp_dir in $(find components -d -maxdepth 1 -mindepth 1); do
         echo "./$comp_dir"
-        eval "cd $comp_dir && $command && (cd - >/dev/null)"
-        echo
+        (
+            cd "$comp_dir"
+            $command
+        )
     done
 }
 
-
-for_each_component "$@"
+if _is_run; then
+    for_each_component "$@"
+fi
