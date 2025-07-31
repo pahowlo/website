@@ -18,7 +18,7 @@
     // Init background
     if (canvas) {
       const background = new MurmuringBoidsBackground(window, canvas)
-      background.start(5001, debug, {})
+      background.start(5002, debug, {})
     }
   })
 </script>
@@ -32,6 +32,7 @@
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    background-color: #212121;
   }
   canvas {
     display: block;
@@ -40,5 +41,6 @@
     position: absolute;
     top: 0;
     left: 0;
+    background-color: transparent !important; /* Ensure the canvas is transparent */
   }
 </style>
