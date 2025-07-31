@@ -18,7 +18,7 @@
     // Init background
     if (canvas) {
       const background = new MurmuringBoidsBackground(window, canvas)
-      background.start(5002, debug, {})
+      background.start(6000, debug, {})
     }
   })
 </script>
