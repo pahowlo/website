@@ -74,7 +74,6 @@ function publish()
         # Create tag from source repository
         cd $ROOT_DIR
         create_github_release "v$version_number"
-        echo $?
 
         # Commit and push changes
         cd "$temp_dir"
@@ -84,9 +83,9 @@ function publish()
         if [ "$new_commit_msg" = "$(git log -1 --pretty=format:"%s")" ]; then
             commit_args+=" --amend"  # Last commit add same name
         else
-            commit_args+=" -m \"$new_commit_msg\""
+            commit_args+=" --edit -m \"$new_commit_msg\""
         fi
-        git commit $commit_args
+        eval "git commit $commit_args"
         git push --force-with-lease
     )
     exit_code=$?
