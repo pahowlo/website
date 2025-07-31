@@ -32,10 +32,20 @@ function create_github_release()
         echo "VERSION    = $version"
         echo
 
-        # Delete previous release and tag of same version - if it exists
-        gh release delete "$version" --repo "$github_repository" -y --cleanup-tag 2>/dev/null || true
-        git tag  --delete "$version" 2>/dev/null || true
-        echo
+        # Check if release already exists
+        if gh release view "$version" --repo "$github_repository" >/dev/null 2>&1; then
+            read -rp "Do you want to delete the existing release of $version in $github_repository? (y/N) " answer
+            case "$answer" in
+                y|Y)
+                    # Delete previous release and tag of same version
+                    gh release delete "$version" --repo "$github_repository" -y --cleanup-tag 2>/dev/null || true
+                    git tag  --delete "$version" 2>/dev/null || true
+                    echo
+                    ;;
+                *)
+                    return 1;;
+            esac
+        fi
 
         # Create and push new tag
         git tag -s "$version" -m ""
