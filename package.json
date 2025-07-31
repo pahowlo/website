@@ -1,6 +1,6 @@
 {
   "name": "personal-github-page",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Paul L <paul.legoux@gmail.com>",
   "dependencies": {},
   "packageManager": "pnpm@10.14.0",
