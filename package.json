@@ -2,7 +2,8 @@
   "name": "personal-github-page",
   "version": "0.2.0",
   "author": "Paul L <paul.legoux@gmail.com>",
-  "packageManager": "pnpm@10.13.1",
+  "dependencies": {},
+  "packageManager": "pnpm@10.14.0",
   "scripts": {
     "build:all": "pnpm build:components && echo './' && pnpm build",
     "build:components": ".scripts/for-each-component pnpm build",
@@ -22,7 +23,7 @@
   "prettier": {
     "semi": false,
     "singleQuote": false,
-    "printWidth": 120
+    "printWidth": 100
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
