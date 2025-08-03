@@ -1,12 +1,62 @@
 import { defineConfig } from "vite"
+import { minify } from "html-minifier-terser"
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import path from "path"
 
 export default defineConfig({
-  plugins: [svelte()],
+  plugins: [
+    svelte(),
+    {
+      name: "html-minifier-terser",
+      apply: "build",
+      transformIndexHtml: {
+        order: "post",
+        handler(html) {
+          return minify(html, {
+            removeComments: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            useShortDoctype: true,
+            minifyCSS: true,
+            minifyJS: true,
+            collapseWhitespace: true,
+            conservativeCollapse: false, // remove all unnecessary whitespaces
+            caseSensitive: true,
+            keepClosingSlash: true,
+            removeEmptyAttributes: true,
+            sortAttributes: true,
+            sortClassName: true,
+          })
+        },
+      },
+    },
+  ],
   build: {
     outDir: "target",
     emptyOutDir: true,
+    // More aggressive minification settings
+    minify: "terser", // 'esbuild''
+    terserOptions: {
+      compress: {
+        arguments: true,
+        booleans_as_integers: true,
+        drop_console: true,
+        drop_debugger: true,
+        passes: 3,
+        pure_funcs: ["console.log", "console.info", "console.warn"],
+        unsafe: true,
+        unsafe_arrows: true,
+        unsafe_comps: true,
+        unsafe_math: true,
+        unsafe_proto: true,
+      },
+      mangle: {
+        properties: {
+          regex: /^_/, // Mangle private properties
+        },
+      },
+    },
   },
   server: {
     open: "/index.html",
