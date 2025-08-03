@@ -48,4 +48,5 @@ temp/
 *.old
 
 # Github links
+*.link
 *.link/
