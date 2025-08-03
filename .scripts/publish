@@ -1,20 +1,14 @@
 #!/bin/sh
-alias _is_run='!(return 0 2>/dev/null)'
+(return 0 2>/dev/null) && {
+    echo "ERROR: This script cannot be sourced. It must be run." >&2
+    return 1
+}
 
-if _is_run; then
-    SCRIPTS_DIR=$(dirname "$(realpath "$0")")
-else
-    if [ -z "${SCRIPTS_DIR:-}" ]; then
-        echo "ERROR: If sourced and not run, SCRIPTS_DIR env var must contain the path to scripts directory" >&2
-        return 1  # sourced
-    fi
-fi
-
+SCRIPTS_DIR=$(dirname "$(realpath "$0")")
 ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
 
 . "$SCRIPTS_DIR/common/logs.sh"
 . "$SCRIPTS_DIR/common/utils.sh"
-. "$SCRIPTS_DIR/create-github-release"
 
 
 # == Constants
@@ -29,6 +23,9 @@ function publish()
     local shell_options=$(set +o); set +e
     (
         set -eu
+
+        # Unsure we are using the same version as specified in links config
+        $SCRIPTS_DIR/fetch_links
 
         # Build if build was not found
         if [ -z "$(ls -A "$ROOT_DIR/target" 2>/dev/null)" ]; then
@@ -73,7 +70,7 @@ function publish()
 
         # Create tag from source repository
         cd $ROOT_DIR
-        create_github_release "v$version_number"
+        $SCRIPTS_DIR/create-github-release "v$version_number"
 
         # Commit and push changes
         cd "$temp_dir"
@@ -99,6 +96,4 @@ function publish()
 }
 
 
-if _is_run; then
-    publish "$@"
-fi
+publish "$@"

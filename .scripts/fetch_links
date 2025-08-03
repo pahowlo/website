@@ -1,6 +1,11 @@
 #!/bin/sh
-ROOT_DIR=$(realpath $(dirname "$0")/..)
-cd "$ROOT_DIR" || exit 1
+(return 0 2>/dev/null) && {
+    echo "ERROR: This script cannot be sourced. It must be run." >&2
+    return 1
+}
+
+SCRIPTS_DIR=$(dirname "$(realpath "$0")")
+ROOT_DIR=$(realpath $SCRIPTS_DIR/..)
 
 
 function _fetch_link()
@@ -78,7 +83,6 @@ function fetch_links()
     done
     unset line
 }
-
 
 
 fetch_links "$@"

@@ -1,15 +1,10 @@
 #!/bin/sh
-alias _is_run='!(return 0 2>/dev/null)'
+(return 0 2>/dev/null) && {
+    echo "ERROR: This script cannot be sourced. It must be run." >&2
+    return 1
+}
 
-if _is_run; then
-    SCRIPTS_DIR=$(dirname "$(realpath "$0")")
-else
-    if [ -z "${SCRIPTS_DIR:-}" ]; then
-        echo "ERROR: If sourced and not run, SCRIPTS_DIR env var must contain the path to scripts directory" >&2
-        return 1  # sourced
-    fi
-fi
-
+SCRIPTS_DIR=$(dirname "$(realpath "$0")")
 ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
 
 
@@ -28,6 +23,5 @@ function for_each_component()
     done
 }
 
-if _is_run; then
-    for_each_component "$@"
-fi
+
+for_each_component "$@"
