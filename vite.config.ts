@@ -41,10 +41,9 @@ export default defineConfig({
       compress: {
         arguments: true,
         booleans_as_integers: true,
-        drop_console: true,
+        drop_console: false, // Keep console statements for debugging
         drop_debugger: true,
         passes: 3,
-        pure_funcs: ["console.log", "console.info", "console.warn"],
         unsafe: true,
         unsafe_arrows: true,
         unsafe_comps: true,
