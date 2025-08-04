@@ -27,18 +27,18 @@ function publish()
         # Unsure we are using the same version as specified in links config
         $SCRIPTS_DIR/fetch_links
 
-        # Build if build was not found
-        if [ -z "$(ls -A "$ROOT_DIR/target" 2>/dev/null)" ]; then
-            pnpm install:all
-            pnpm build:all
-        fi
+        # Re-do build to be sure
+        rm -rf "$ROOT_DIR/target"
+        pnpm install:all
+        pnpm build:all
+        echo
 
         # Parse arguments
         local version_number=$(jq -r .version package.json)
         local git_base_url=$(git config --get remote.origin.url | sed -E "s~([^/:]+)/([^/]+)[.]git$~~g" )
 
-        mkdir -p "$ROOT_DIR/tmp"
-        local temp_dir=$(mktemp -d -p "$ROOT_DIR/tmp" "publish-XXXXXXXX")
+        mkdir -p "/tmp/projects/github-page"
+        local temp_dir=$(mktemp -d -p "/tmp/projects/github-page" "publish-XXXXXXXX")
         echo "TEMP_DIR       = $temp_dir"
         trap 'rm -rf "$temp_dir"' EXIT
 
