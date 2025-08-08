@@ -1,0 +1,38 @@
+#!/bin/sh
+(return 0 2>/dev/null) && {
+    echo "ERROR: This script cannot be sourced. It must be run." >&2
+    return 1
+}
+
+SCRIPTS_DIR=$(dirname "$(realpath "$0")")
+ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
+
+
+function set_local_symlink()
+{
+    local links_file="$ROOT_DIR/.links_conf"
+    if [ ! -f "$links_file" ]; then
+        echo "ERROR: Links config file not found: $links_file"
+        return 1
+    fi
+
+    # Read link config file but skip empty lines and comments
+    trap 'unset IFS' EXIT
+    IFS='
+'
+    for line in $(cat "$links_file" | sed '/^\s*#/d; /^\s*$/d; s/\s*#.*$//g'); do
+        IFS=' '
+        set -- $line
+        local link_directory=$(dirname "$ROOT_DIR/$1")
+        local link_name="$(basename "$1")"
+        local target=$(realpath "$ROOT_DIR/../$link_name")
+        cd $link_directory
+        ln -s "$target" "$link_name.link"
+        IFS='
+'
+    done
+    unset line
+}
+
+
+set_local_symlink "$@"

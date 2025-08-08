@@ -25,7 +25,7 @@ function publish()
         set -eu
 
         # Unsure we are using the same version as specified in links config
-        $SCRIPTS_DIR/fetch_links
+        $SCRIPTS_DIR/fetch-links
 
         # Re-do build to be sure
         rm -rf "$ROOT_DIR/target"
