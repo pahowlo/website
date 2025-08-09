@@ -26,8 +26,25 @@ function set_local_symlink()
         local link_directory=$(dirname "$ROOT_DIR/$1")
         local link_name="$(basename "$1")"
         local target=$(realpath "$ROOT_DIR/../$link_name")
-        cd $link_directory
-        ln -s "$target" "$link_name.link"
+
+        local link_path="$link_directory/$link_name.link"
+        if [ -L "$link_path" ]; then
+            rm "$link_path"
+        elif [ -e "$link_path" ]; then
+            read -rp "Path already exists and is not a symlink. Override $link_path? (y/N) " answer
+            case "$answer" in
+                [yY])
+                    rm -rf "$link_path";;
+                *)
+                    echo "ERROR: Skipping." >&2
+                    return 1;;
+            esac
+            unset answer
+            echo
+        fi
+
+        ln -s "$target" "$link_path"
+
         IFS='
 '
     done
