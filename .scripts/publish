@@ -82,7 +82,7 @@ function publish()
         else
             commit_args+=" --edit -m \"$new_commit_msg\""
         fi
-        eval "git commit $commit_args"
+        eval "git commit $commit_args -S"
         git push --force-with-lease
     )
     exit_code=$?
