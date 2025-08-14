@@ -1,6 +1,6 @@
 {
   "name": "personal-github-page",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "author": "Paul L <paul.legoux@gmail.com>",
   "packageManager": "pnpm@10.14.0",
   "scripts": {
@@ -29,6 +29,7 @@
     "@sveltejs/vite-plugin-svelte": "^6.1.0",
     "@tsconfig/svelte": "^5.0.4",
     "@types/jest": "^30.0.0",
+    "@vitejs/plugin-legacy": "^7.2.1",
     "eslint": "^9.31.0",
     "eslint-plugin-svelte": "^3.11.0",
     "html-minifier-terser": "^7.2.0",
