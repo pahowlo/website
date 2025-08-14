@@ -1,11 +1,16 @@
+import path from "path"
+
 import { defineConfig } from "vite"
 import { minify } from "html-minifier-terser"
 import { svelte } from "@sveltejs/vite-plugin-svelte"
-import path from "path"
+import legacy from "@vitejs/plugin-legacy"
 
 export default defineConfig({
   plugins: [
     svelte(),
+    legacy({
+      targets: ["defaults", "not IE 11"],
+    }),
     {
       name: "html-minifier-terser",
       apply: "build",
