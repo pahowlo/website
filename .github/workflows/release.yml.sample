@@ -1,3 +1,5 @@
+# DRAFT: This was used at once point, but current version may not be fully functional.
+# Solo project can just be deployed manually to avoid wasting CI minutes.
 name: Publish updated GitHub account page
 
 on:
