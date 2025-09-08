@@ -7,8 +7,8 @@
 SCRIPTS_DIR=$(dirname "$(realpath "$0")")
 ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
 
-. "$SCRIPTS_DIR/common/logs.sh"
-. "$SCRIPTS_DIR/common/utils.sh"
+. "$SCRIPTS_DIR/includes/logs.sh"
+. "$SCRIPTS_DIR/includes/utils.sh"
 
 
 # == Constants
