@@ -8,47 +8,49 @@ SCRIPTS_DIR=$(dirname "$(realpath "$0")")
 ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
 
 
-function set_local_symlink()
-{
-    local links_file="$ROOT_DIR/.links_conf"
-    if [ ! -f "$links_file" ]; then
-        echo "ERROR: Links config file not found: $links_file"
-        return 1
-    fi
+set_local_symlink() {
+    (
+        set -eu
 
-    # Read link config file but skip empty lines and comments
-    trap 'unset IFS' EXIT
-    IFS='
-'
-    for line in $(cat "$links_file" | sed '/^\s*#/d; /^\s*$/d; s/\s*#.*$//g'); do
-        IFS=' '
-        set -- $line
-        local link_directory=$(dirname "$ROOT_DIR/$1")
-        local link_name="$(basename "$1")"
-        local target=$(realpath "$ROOT_DIR/../$link_name")
-
-        local link_path="$link_directory/$link_name.link"
-        if [ -L "$link_path" ]; then
-            rm "$link_path"
-        elif [ -e "$link_path" ]; then
-            read -rp "Path already exists and is not a symlink. Override $link_path? (y/N) " answer
-            case "$answer" in
-                [yY])
-                    rm -rf "$link_path";;
-                *)
-                    echo "ERROR: Skipping." >&2
-                    return 1;;
-            esac
-            unset answer
-            echo
+        links_file="$ROOT_DIR/.links_conf"
+        if [ ! -f "$links_file" ]; then
+            echo "ERROR: Links config file not found: $links_file"
+            return 1
         fi
 
-        ln -s "$target" "$link_path"
-
+        # Read link config file but skip empty lines and comments
+        trap 'unset IFS' EXIT
         IFS='
-'
-    done
-    unset line
+    '
+        for line in $(cat "$links_file" | sed '/^\s*#/d; /^\s*$/d; s/\s*#.*$//g'); do
+            IFS=' '
+            set -- $line
+            link_directory=$(dirname "$ROOT_DIR/$1")
+            link_name="$(basename "$1")"
+            target=$(realpath "$ROOT_DIR/../$link_name")
+
+            link_path="$link_directory/$link_name.link"
+            if [ -L "$link_path" ]; then
+                rm "$link_path"
+            elif [ -e "$link_path" ]; then
+                read -rp "Path already exists and is not a symlink. Override $link_path? (y/N) " answer
+                case "$answer" in
+                    [yY])
+                        rm -rf "$link_path";;
+                    *)
+                        echo "ERROR: Skipping." >&2
+                        return 1;;
+                esac
+                unset answer
+                echo
+            fi
+
+            ln -s "$target" "$link_path"
+
+            IFS='
+    '
+        done
+    )
 }
 
 

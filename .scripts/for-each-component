@@ -9,8 +9,7 @@ ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
 
 
 # == Main function
-function for_each_component()
-{
+for_each_component() {
     command="$@"
 
     cd "$ROOT_DIR"

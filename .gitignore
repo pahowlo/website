@@ -8,7 +8,7 @@
 *.swp
 Thumbs.db
 
-# Local environment
+# environment
 .env
 .env.*.local
 .env.local

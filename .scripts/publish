@@ -18,9 +18,8 @@ TARGET_BRANCH="main"
 
 # == Main function
 # Publish the built application to the target repository
-function publish()
-{
-    local shell_options=$(set +o); set +e
+publish() {
+    shell_options=$(set +o); set +e
     (
         set -eu
 
@@ -34,11 +33,11 @@ function publish()
         echo
 
         # Parse arguments
-        local version_number=$(jq -r .version package.json)
-        local git_base_url=$(git config --get remote.origin.url | sed -E "s~([^/:]+)/([^/]+)[.]git$~~g" )
+        version_number=$(jq -r .version package.json)
+        git_base_url=$(git config --get remote.origin.url | sed -E "s~([^/:]+)/([^/]+)[.]git$~~g" )
 
         mkdir -p "/tmp/projects/github-page"
-        local temp_dir=$(mktemp -d -p "/tmp/projects/github-page" "publish-XXXXXXXX")
+        temp_dir=$(mktemp -d -p "/tmp/projects/github-page" "publish-XXXXXXXX")
         echo "TEMP_DIR       = $temp_dir"
         trap 'rm -rf "$temp_dir"' EXIT
 
@@ -74,9 +73,9 @@ function publish()
 
         # Commit and push changes
         cd "$temp_dir"
-        local new_commit_msg="Release v$version_number"
+        new_commit_msg="Release v$version_number"
 
-        local commit_args=
+        commit_args=
         if [ "$new_commit_msg" = "$(git log -1 --pretty=format:"%s")" ]; then
             commit_args+=" --amend"  # Last commit add same name
         else
@@ -86,7 +85,7 @@ function publish()
         git push --force-with-lease
     )
     exit_code=$?
-    eval "$shell_options"
+    eval "$shell_options"; unset shell_options
 
     if [ "$exit_code" -ne 0 ]; then
         log_error "Failed to publish to $TARGET_REPOSITORY" >&2
