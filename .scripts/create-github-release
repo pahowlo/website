@@ -11,20 +11,18 @@ ROOT_DIR=$(realpath "$SCRIPTS_DIR/..")
 
 
 # == Main function
-function create_github_release()
-{
-
-    local version="${1:-}"
-    if [ -z "$version" ]; then
-        log_error "Version argument is required to create GitHub tag." >&2
-        return 1
-    fi
-
-    local shell_options=$(set +o); set +e
+create_github_release() {
+    shell_options=$(set +o); set +e
     (
         set -eu
 
-        local github_repository=$(git config --get remote.origin.url | sed -E "s~.*[:/]([^/:]+)/([^/]+)[.]git$~\1/\2~g" )
+        version="${1:-}"
+        if [ -z "$version" ]; then
+            log_error "Version argument is required to create GitHub tag." >&2
+            return 1
+        fi
+
+        github_repository=$(git config --get remote.origin.url | sed -E "s~.*[:/]([^/:]+)/([^/]+)[.]git$~\1/\2~g" )
         echo "REPOSITORY = $github_repository"
         echo "VERSION    = $version"
         echo
@@ -54,7 +52,7 @@ function create_github_release()
         gh release create "$version" --repo "$github_repository" --title "$version"
     )
     exit_code=$?
-    eval "$shell_options"
+    eval "$shell_options"; unset shell_options
 
     if [ "$exit_code" -ne 0 ]; then
         log_error "Failed to publish to $TARGET_REPOSITORY" >&2

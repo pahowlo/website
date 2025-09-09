@@ -8,23 +8,23 @@ SCRIPTS_DIR=$(dirname "$(realpath "$0")")
 ROOT_DIR=$(realpath $SCRIPTS_DIR/..)
 
 
-function _fetch_link()
-{
-    local link_path="${1:-}"
-    local repo_name="${2:-}"
-    local ref="${3:-}"
-
-    if [ -z "$link_path" ] || [ -z "$repo_name" ] || [ -z "$ref" ]; then
-        echo "ERROR: Invalid link. It should contain values for the following params separated by spaces:" \
-            "<link path in project> <repo name> <ref>" >&2
-        echo "But got: <$link_path> <$repo_name> <$ref>" >&2
-        return 1
-    fi
+_fetch_link() {
     (
         set -eu
 
-        local git_base_url=$(git config --get remote.origin.url | sed -E "s~([^/:]+)/([^/]+)[.]git$~~g" )
-        local target_repo_url="${git_base_url}${repo_name}.git"
+        link_path="${1:-}"
+        repo_name="${2:-}"
+        ref="${3:-}"
+
+        if [ -z "$link_path" ] || [ -z "$repo_name" ] || [ -z "$ref" ]; then
+            echo "ERROR: Invalid link. It should contain values for the following params separated by spaces:" \
+                "<link path in project> <repo name> <ref>" >&2
+            echo "But got: <$link_path> <$repo_name> <$ref>" >&2
+            return 1
+        fi
+
+        git_base_url=$(git config --get remote.origin.url | sed -E "s~([^/:]+)/([^/]+)[.]git$~~g" )
+        target_repo_url="${git_base_url}${repo_name}.git"
 
         case "$link_path" in
             *.link) ;;
@@ -62,9 +62,8 @@ function _fetch_link()
 }
 
 
-function fetch_links()
-{
-    local links_file="$ROOT_DIR/.links_conf"
+fetch_links() {
+    links_file="$ROOT_DIR/.links_conf"
     if [ ! -f "$links_file" ]; then
         echo "ERROR: Links config file not found: $links_file"
         return 1
