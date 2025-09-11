@@ -1,6 +1,6 @@
 {
   "name": "personal-github-page",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "author": "Paul L <paul.legoux@gmail.com>",
   "packageManager": "pnpm@10.14.0",
   "scripts": {
@@ -15,7 +15,8 @@
     "format": "prettier --config package.json --write 'src/**/*.{js,ts,json}'",
     "install:all": "pnpm install:components && echo './' &&  pnpm install",
     "install:components": ".scripts/for-each-component pnpm install",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "test": "vitest run"
   },
   "prettier": {
     "semi": false,
@@ -32,6 +33,7 @@
     "svelte-preprocess": "^6.0.3",
     "terser": "^5.43.1",
     "typescript": "^5.8.3",
-    "vite": "^7.0.5"
+    "vite": "^7.0.5",
+    "vitest": "^3.2.4"
   }
 }
