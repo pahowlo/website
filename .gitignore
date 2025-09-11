@@ -39,13 +39,18 @@ target/
 # Github links
 *.link
 *.link/
+*.links_relpath
 
-# == Project's
-# Javascript/Typescripts
+# Javascript/Typescript
 .npm
 npm-debug.log*
 node_modules/
 package-lock.json
-pnpm-lock.yaml
+pnpm-lock.y*
 # Use .test.ts for test files instead of spec
 *.spec.ts
+
+# Python
+__pycache__
+*.pyc
+*.pyo
