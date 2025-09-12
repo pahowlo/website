@@ -1,0 +1,132 @@
+#!/usr/bin/env python3.13
+
+import json
+import os
+import secrets
+import shutil
+import sys
+from pathlib import Path
+
+SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+from includes.git import get_git_base_url  # noqa: E402
+from includes.utils.logs import LOGGER  # noqa: E402
+from includes.utils.subprocess import run_cmd, run_interactive_cmd  # noqa: E402
+
+from fetch_links import fetch_links  # noqa: E402
+from create_github_release import create_github_release  # noqa: E402
+
+_TARGET_REPOSITORY = "pahowlo/pahowlo.github.io"
+_TARGET_BRANCH = "main"
+
+ROOT_DIR = SCRIPTS_DIR.parent
+
+
+def publish() -> None:
+    curr_workdir = os.getcwd()
+    temp_dir = None
+    try:
+        # Ensure we are using the same version as specified in links config
+        fetch_links()
+
+        # Re-do build to be sure
+        shutil.rmtree(ROOT_DIR / "target", ignore_errors=True)
+        run_cmd(
+            "pnpm install:all",
+            "pnpm build:all",
+            raise_on_error=True,
+        )
+        print()
+
+        # Parse arguments
+        with open(ROOT_DIR / "package.json") as f:
+            version_number = json.load(f)["version"]
+
+        git_base_url = get_git_base_url()
+
+        temp_dir = (
+            Path("/tmp/projects/github-page") / f"publish-{secrets.token_hex(10)}"
+        )
+        os.makedirs(temp_dir, exist_ok=True)
+
+        print(f"TEMP_DIR       = {temp_dir}")
+        print(f"VERSION_NUMBER = {version_number}")
+        print(f"TEMP_DIR       = {temp_dir}")
+        print()
+
+        os.chdir(temp_dir)
+
+        # Clone target repository and remove old files
+        target_repository = f"{git_base_url}{_TARGET_REPOSITORY}.git"
+        run_cmd(
+            f"git clone --branch {_TARGET_BRANCH!r} --depth 1 {target_repository!r} .",
+            raise_on_error=True,
+        )
+        for item in temp_dir.iterdir():
+            if item.name in {".git", "LICENSE", "README.md"}:
+                continue
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+
+        # Copy new files to the target repository
+        for src_item in (ROOT_DIR / "target").iterdir():
+            if item.name in {".git", "LICENSE", "README.md"}:
+                continue
+
+            dest = temp_dir / src_item.name
+            if src_item.is_dir():
+                shutil.copytree(src_item, dest)
+            else:
+                shutil.copy2(src_item, dest)
+
+        print()
+        for path in sorted(temp_dir.rglob("*")):
+            if ".git" in path.parts:
+                continue
+
+            print(str(path.relative_to(temp_dir)))
+        print()
+
+        run_cmd("git add -A", raise_on_error=True)
+
+        # Verify that there are actual changes in target repository to commit
+        process = run_cmd("git diff --quiet HEAD")
+        if process.successful():
+            LOGGER.info("No changes to commit.")
+            return 0
+
+        # Create tag from source repository
+        os.chdir(ROOT_DIR)
+        release_tag = f"v{version_number}"
+        create_github_release(release_tag)
+
+        # Commit and push changes
+        os.chdir(temp_dir)
+        new_commit_msg = f"Release {release_tag}"
+
+        process = run_cmd("git log -1 --pretty=format:%s", quiet=True)
+
+        if new_commit_msg == process.stdout[0].strip():
+            commit_args = "--amend"
+        else:
+            commit_args = f" --edit -m {new_commit_msg!r}"
+
+        run_interactive_cmd(
+            f"git commit {commit_args} -S",
+            "git push --force-with-lease",
+            raise_on_error=True,
+        )
+    finally:
+        # Clean up temp_dir
+        if temp_dir:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        # Restore working directory
+        os.chdir(curr_workdir)
+
+
+if __name__ == "__main__":
+    sys.exit(publish())
