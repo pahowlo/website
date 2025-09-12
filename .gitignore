@@ -29,6 +29,8 @@ logs/
 *.so
 build/
 dist/
+*build/
+*dist/
 target/
 
 # Backup files
