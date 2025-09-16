@@ -19,15 +19,15 @@ jobs:
           persist-credentials: true
           submodules: true  # Pull submodules if any
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Install deno
+        uses: denoland/setup-deno@v2
         with:
-          node-version: 24
+          deno-version: v2.5.0
 
       - name: Install pnpm
         run: |
           corepack enable
-          corepack prepare pnpm@10 --activate
+          corepack prepare pnpm@10.15.1 --activate
 
       - name: Prepare lock file
         run: |
