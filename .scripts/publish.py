@@ -7,21 +7,17 @@ import shutil
 import sys
 from pathlib import Path
 
-SCRIPTS_DIR = Path(__file__).resolve().parent
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
-
-from includes.git import get_git_base_url  # noqa: E402
-from includes.utils.logs import LOGGER  # noqa: E402
-from includes.utils.subprocess import run_cmd, run_interactive_cmd  # noqa: E402
-
-from fetch_links import fetch_links  # noqa: E402
-from create_github_release import create_github_release  # noqa: E402
+# When running a Python script, parent directory is added to sys.path
+from includes.utils.logs import LOGGER
+from includes.utils.subprocess import run_cmd, run_interactive_cmd
+from includes.git import get_git_base_url
+from fetch_links import fetch_links
+from create_github_release import create_github_release
 
 _TARGET_REPOSITORY = "pahowlo/pahowlo.github.io"
 _TARGET_BRANCH = "main"
 
-ROOT_DIR = SCRIPTS_DIR.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent
 
 
 def publish() -> None:

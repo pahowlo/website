@@ -4,15 +4,11 @@ import os
 import sys
 from pathlib import Path
 
-SCRIPTS_DIR = Path(__file__).resolve().parent
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
-
-from includes.utils.logs import LOGGER, Color  # noqa: E402
-from includes.utils.subprocess import run_cmd  # noqa: E402
+# When running a Python script, parent directory is added to sys.path
+from includes.utils.subprocess import run_cmd
 
 
-ROOT_DIR = SCRIPTS_DIR.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent
 
 
 def for_each_component(cmd: str) -> None:

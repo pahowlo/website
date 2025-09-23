@@ -4,12 +4,9 @@ import re
 import sys
 from pathlib import Path
 
-SCRIPTS_DIR = Path(__file__).resolve().parent.parent
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
-
-from includes.utils.logs import LOGGER  # noqa: E402
-from includes.utils.subprocess import run_cmd  # noqa: E402
+# When running a Python script, parent directory is added to sys.path
+from includes.utils.logs import LOGGER
+from includes.utils.subprocess import run_cmd
 
 
 _GIT_REMOVE_URL_RE = re.compile(r"^(.*[.]com[/:])([^/:]+)/([^/]+)[.]git$")

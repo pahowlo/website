@@ -3,8 +3,7 @@
 import os
 from pathlib import Path
 
-SCRIPTS_DIR = Path(__file__).resolve().parent
-ROOT_DIR = SCRIPTS_DIR.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent
 
 
 def fetch_local_symlinks():

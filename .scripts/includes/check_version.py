@@ -3,13 +3,10 @@ import re
 import sys
 from pathlib import Path
 
-SCRIPTS_DIR = Path(__file__).resolve().parent.parent
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
+# When running a Python script, parent directory is added to sys.path
+from includes.utils.logs import LOGGER
+from includes.utils.subprocess import run_cmd
 
-from includes.utils.logs import LOGGER # noqa: E402
-from includes.utils.subprocess import run_cmd # noqa: E402
- 
 _VERSION_REGEX = re.compile(r"^[0-9]+\.[0-9]+(\.[0-9]+)?$")
 
 
