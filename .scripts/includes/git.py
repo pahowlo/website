@@ -2,7 +2,6 @@
 
 import re
 import sys
-from pathlib import Path
 
 # When running a Python script, parent directory is added to sys.path
 from includes.utils.logs import LOGGER
@@ -13,12 +12,12 @@ _GIT_REMOVE_URL_RE = re.compile(r"^(.*[.]com[/:])([^/:]+)/([^/]+)[.]git$")
 
 
 def get_git_base_url() -> str:
-    process = run_cmd("git config --get remote.origin.url", quiet=True)
-    if not process.successful():
+    exit_code, stdout, _ = run_cmd("git config --get remote.origin.url", quiet=True)
+    if exit_code != 0:
         LOGGER.error("Could not determine git base url", *sys.stderr)
         exit(1)
 
-    url = process.stdout[0].strip()
+    url = stdout.strip()
     m = _GIT_REMOVE_URL_RE.match(url)
     if m:
         return m.group(1)
@@ -28,12 +27,12 @@ def get_git_base_url() -> str:
 
 def get_git_repository() -> tuple[str, str]:
     """Return (owner, repo_name) of the current git repository."""
-    process = run_cmd("git config --get remote.origin.url", quiet=True)
-    if not process.successful():
+    exit_code, stdout, _ = run_cmd("git config --get remote.origin.url", quiet=True)
+    if exit_code != 0:
         LOGGER.error("Could not determine git repository", *sys.stderr)
         exit(1)
 
-    url = process.stdout[0].strip()
+    url = stdout.strip()
     m = _GIT_REMOVE_URL_RE.match(url)
     if m:
         return m.group(2), m.group(3)

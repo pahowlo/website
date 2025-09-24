@@ -1,46 +1,42 @@
 #!/usr/bin/env python3.13
 import re
-import sys
-from pathlib import Path
 
 # When running a Python script, parent directory is added to sys.path
-from includes.utils.logs import LOGGER
 from includes.utils.subprocess import run_cmd
 
-_VERSION_REGEX = re.compile(r"^[0-9]+\.[0-9]+(\.[0-9]+)?$")
+_VERSION_REGEX = re.compile(r"[0-9]+\.[0-9]+(\.[0-9]+)?")
 
 
-def check_version(package: str, min_version: str) -> bool:
+def check_version(package: str, min_version: str) -> tuple[bool, str | None]:
     """Validate that the package version is greater or equal than the provided number.
 
     Args:
         package: The package name to check, must be available in PATH.
         min_version: The minimal version required. E.g. "X.Y.Z" or "X.Y".
+
+    Returns:
+        - True if the package was found and its version greater or equal.
+        - The version found for package even if lower.
+            None only if package was not found, or has no version option.
     """
-    base_msg = f"Required: {package!r} must be installed with greater version than {min_version!r}"
+    exit_code, stdout, _ = run_cmd(f"$(which {package!r}) --version", quiet=True)
+    if exit_code != 0 or not stdout:
+        return False, None  # Package not found, or has no version option
 
-    process = run_cmd(f"$(which {package!r}) --version", quiet=True)
-    if not process.successful() or not process.stdout:
-        LOGGER.error(
-            f"{base_msg}, but was not found or could not read version",
-        )
-        return False
-
-    m = _VERSION_REGEX.search(process.stdout[0])
+    m = _VERSION_REGEX.search(stdout)
     if not m:
-        LOGGER.error(
-            f"{base_msg}, but was not found or could not read version",
-        )
-        return False
+        return False, None  # Could not parse version
     version = m.group(0)
 
-    min_version_tup = tuple(map(int, min_version.split(".")))
-    version_tup = tuple(map(int, version.split(".")))
+    min_version_tup = list(map(int, min_version.split(".")))
+    version_tup = list(map(int, version.split(".")))
 
-    if min_version_tup > version_tup:
-        LOGGER.error(
-            f"{base_msg}, but found version {version!r} for $(which {package!r})",
-        )
-        return False
+    version_tup.extend([0] * (len(min_version_tup) - len(version_tup)))
 
-    return True
+    for v, min_v in zip(version_tup, min_version_tup):
+        if v > min_v:
+            return True, version
+        if v < min_v:
+            return False, version
+
+    return True, version

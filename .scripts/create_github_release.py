@@ -2,7 +2,6 @@
 
 import argparse
 import re
-import sys
 from pathlib import Path
 
 # When running a Python script, parent directory is added to sys.path
@@ -32,10 +31,10 @@ def create_github_release(version: str) -> None:
         )
         exit(1)
 
-    process = run_cmd(
+    exit_code, _, _ = run_cmd(
         f"gh release view {version!r} --repo {github_repository!r}", quiet=True
     )
-    if process.successful():
+    if exit_code == 0:
         match input(
             f"Do you want to delete the existing release of {version!r} in {github_repository!r}? (y/N)"
         ).lower():
@@ -43,7 +42,7 @@ def create_github_release(version: str) -> None:
                 # Delete previous release and tag of same version
                 run_cmd(
                     f"gh release delete {version!r} --repo {github_repository!r} -y --cleanup-tag",
-                    raise_on_error=True,
+                    check=True,
                 )
                 print()
             case _:
@@ -56,13 +55,13 @@ def create_github_release(version: str) -> None:
     run_cmd(
         f"git tag -s {version!r} -m ''",
         f"git push origin {version!r} --force",
-        raise_on_error=True,
+        check=True,
     )
 
     # Create a release on GitHub
     run_cmd(
         f"gh release create {version!r} --repo {github_repository!r} --title {version!r}",
-        raise_on_error=True,
+        check=True,
     )
 
 

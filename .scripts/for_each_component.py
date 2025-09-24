@@ -6,6 +6,7 @@ from pathlib import Path
 
 # When running a Python script, parent directory is added to sys.path
 from includes.utils.subprocess import run_cmd
+from includes.utils.logs import LOGGER, Color
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent

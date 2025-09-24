@@ -15,6 +15,11 @@ class Color:
     RED = "\033[0;31m"
 
 
+class Symbol:
+    OK = f"{Color.GREEN}✔{Color.NC}"
+    FAIL = f"{Color.RED}✘{Color.NC}"
+
+
 class _Logger:
     @staticmethod
     def info(msg: str, *msg_details: str) -> None:

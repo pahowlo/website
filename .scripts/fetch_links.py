@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.13
 
 import os
-import sys
 from pathlib import Path
 
 # When running a Python script, parent directory is added to sys.path

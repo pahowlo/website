@@ -32,7 +32,7 @@ def publish() -> None:
         run_cmd(
             "pnpm install:all",
             "pnpm build:all",
-            raise_on_error=True,
+            check=True,
         )
         print()
 
@@ -58,7 +58,7 @@ def publish() -> None:
         target_repository = f"{git_base_url}{_TARGET_REPOSITORY}.git"
         run_cmd(
             f"git clone --branch {_TARGET_BRANCH!r} --depth 1 {target_repository!r} .",
-            raise_on_error=True,
+            check=True,
         )
         for item in temp_dir.iterdir():
             if item.name in {".git", "LICENSE", "README.md"}:
@@ -87,11 +87,11 @@ def publish() -> None:
             print(str(path.relative_to(temp_dir)))
         print()
 
-        run_cmd("git add -A", raise_on_error=True)
+        run_cmd("git add -A", check=True)
 
         # Verify that there are actual changes in target repository to commit
-        process = run_cmd("git diff --quiet HEAD")
-        if process.successful():
+        exit_code, _, _ = run_cmd("git diff --quiet HEAD")
+        if exit_code == 0:
             LOGGER.info("No changes to commit.")
             return 0
 
@@ -104,9 +104,9 @@ def publish() -> None:
         os.chdir(temp_dir)
         new_commit_msg = f"Release {release_tag}"
 
-        process = run_cmd("git log -1 --pretty=format:%s", quiet=True)
+        _, stdout, _ = run_cmd("git log -1 --pretty=format:%s", quiet=True)
 
-        if new_commit_msg == process.stdout[0].strip():
+        if new_commit_msg == stdout.strip():
             commit_args = "--amend"
         else:
             commit_args = f" --edit -m {new_commit_msg!r}"
@@ -114,7 +114,7 @@ def publish() -> None:
         run_interactive_cmd(
             f"git commit {commit_args} -S",
             "git push --force-with-lease",
-            raise_on_error=True,
+            check=True,
         )
     finally:
         # Clean up temp_dir
